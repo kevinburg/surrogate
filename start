@@ -1,0 +1,4 @@
+#!/bin/bash
+
+javac src/surrogate/Surrogate.java
+java -cp bin surrogate.Surrogate $@
