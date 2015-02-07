@@ -4,38 +4,49 @@ import java.util.*;
 import java.io.*;
 import java.net.*;
 
-
 public class ClientHandler {
 	private Socket socket; // The accepted socket from the Webserver
 	private Model model;
-	
+
 	// Do the deserialization or the building if it doesnt exist on disk.
 	private Model getTheModel() {
-		return null;
+		return new Model("sherlock.txt");
 	}
-	
+
 	// Start the thread in the constructor
 	public ClientHandler(Socket s) {
 		this.socket = s;
 		this.model = getTheModel();
-		run();
-	}
-	
-	static void babble(Model model, Integer len) {
-		Vector<String> words = new Vector<String>();
-		words.add("to");
-		words.add("any");
-		for (int i = 2; i < len; i++) {
-			String p2 = words.get(i - 2);
-			String p1 = words.get(i - 1);
-			String next = model.predict(p2, p1);
-			words.add(next);
+		try {
+			run();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
+	}
 
+	static void babble(Model model, String[] parts) throws Exception {
+		Vector<Token> tokens = new Vector<Token>();
+		Token p2 = new Token("in", "IN");
+		Token p1 = new Token("the", "DT");
+		Token p;
+		tokens.add(p2);
+		tokens.add(p1);
+		for (String pos : parts) {
+			if (pos.equals(".")) {
+				break;
+			} else {
+				p = model.predict(p2, p1, pos);
+				System.out.println(p.word);
+				tokens.add(p);
+			}
+			p2 = p1;
+			p1 = p;
+		}
+		
 		BufferedWriter wr = new BufferedWriter(new OutputStreamWriter(System.out));
 		try {
-			for (int i = 0; i < words.size(); i++) {
-				wr.write(words.get(i) + " ");
+			for (int i = 0; i < tokens.size(); i++) {
+				wr.write(tokens.get(i).word + " ");
 			}
 			wr.write("\n");
 			wr.flush();
@@ -44,11 +55,10 @@ public class ClientHandler {
 		}
 	}
 
-
 	// Read the HTTP request, respond, and close the connection
-	public void run() {
+	public void run() throws Exception {
 		try {
-
+			babble(this.model, new String[]{"NN", "VBD", "WRB", "PRP", "VBD", "."});
 			// Open connections to the socket
 			BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
 			PrintStream out = new PrintStream(new BufferedOutputStream(socket.getOutputStream()));

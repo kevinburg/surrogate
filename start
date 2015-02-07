@@ -1,4 +1,4 @@
 #!/bin/bash
 
-javac -d bin src/surrogate/*.java
-java -cp bin surrogate.Surrogate $@
+javac -d bin -cp stanford-postagger.jar src/surrogate/*.java
+java -cp "bin:stanford-postagger.jar" surrogate.Surrogate $@
