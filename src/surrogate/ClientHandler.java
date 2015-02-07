@@ -7,10 +7,17 @@ import java.net.*;
 
 public class ClientHandler {
 	private Socket socket; // The accepted socket from the Webserver
-
+	private Model model;
+	
+	// Do the deserialization or the building if it doesnt exist on disk.
+	private Model getTheModel() {
+		return null;
+	}
+	
 	// Start the thread in the constructor
 	public ClientHandler(Socket s) {
-		socket = s;
+		this.socket = s;
+		this.model = getTheModel();
 		run();
 	}
 	

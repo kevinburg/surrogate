@@ -8,9 +8,8 @@ public class Surrogate {
 	
 	private static ServerSocket serverSocket;
 
-	
-
 	public static void main(String[] args) throws IOException {
+		
 		serverSocket = new ServerSocket(8080); // Start, listen on port 8080
 		while (true) {
 			try {
