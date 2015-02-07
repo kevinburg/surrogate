@@ -11,11 +11,12 @@ public class Token implements java.io.Serializable {
 	
 	@Override
 	public int hashCode() {
-		return this.word.hashCode() + this.pos.hashCode();
+		return this.word.hashCode(); // + this.pos.hashCode();
 	}
 	
 	@Override
 	public boolean equals(final Object obj) {
-		return this.word.equals(((Token)obj).word) && this.pos.equals(((Token)obj).pos);
+		//return this.word.equals(((Token)obj).word) && this.pos.equals(((Token)obj).pos);
+		return this.word.equals(((Token)obj).word);
 	}
 }

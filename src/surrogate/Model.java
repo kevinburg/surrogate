@@ -13,7 +13,7 @@ public class Model {
 
 	Vector<String> tokens;
 	public Hashtable<Token, Hashtable<Token, Hashtable<Token, Integer>>> counts;
-
+/*
 	public Token weakPredict(String pos2, Token pos1) throws Exception {
 		Enumeration<Token> keys = this.counts.keys();
 		while (keys.hasMoreElements()) {
@@ -29,31 +29,43 @@ public class Model {
 			}
 		}
 		throw new Exception("bad");
+	}*/
+	
+	public Vector<Token> seed(String pos1, String pos2) {
+		Vector<Token> tokens = new Vector<Token>();
+		if (pos1.equals("IN")) {
+			tokens.add(new Token("in", "IN"));
+			tokens.add(new Token("the", "DT"));
+		} else if (pos1.equals("DT")) {
+			tokens.add(new Token("this", "DT"));
+			tokens.add(new Token("is", "VBZ"));
+		} else {
+			tokens.add(new Token("we", "PRP"));
+			tokens.add(new Token("should", "MD"));
+		}
+		return tokens;
 	}
 	
-	public Token predict(Token p2, Token p1, String pos) throws Exception {
+	public Token predict(Token p2, Token p1) throws Exception {
 		Hashtable<Token, Integer> t = this.counts.get(p2).get(p1);
 		Enumeration<Token> keys = t.keys();
 		Integer sum = 0;
 		while (keys.hasMoreElements()) {
 			Token key = keys.nextElement();
-			if (key.pos.equals(pos)) {
-				sum += t.get(key);
-			}
+			sum += t.get(key);
 		}
 		if (sum == 0) {
-			weakPredict(p2.pos, p1);
+			throw new Exception("bad");
+			//weakPredict(p2.pos, p1);
 		}
-		Integer random = (int) (Math.random() * sum);
+		Integer random = (int) (Math.random() * (sum - 1));
 		keys = t.keys();
 		sum = 0;
 		while (keys.hasMoreElements()) {
 			Token key = keys.nextElement();
-			if (key.pos.equals(pos)) {
-				sum += t.get(key);
-				if (sum >= random) {
-					return key;
-				}
+			sum += t.get(key);
+			if (sum >= random) {
+				return key;
 			}
 		}
 		return null;
@@ -74,14 +86,20 @@ public class Model {
 			if (sentence.size() < 3) {
 				continue;
 			} else {
-				TaggedWord word2 = sentence.get(0);
-				TaggedWord word1 = sentence.get(1);
-				Token p2 = new Token(word2.word(), word2.tag());
-				Token p1 = new Token(word1.word(), word1.tag());
+				Token p2 = new Token("<s>", "<s>");
+				Token p1 = new Token("<s>", "<s>");
 				Token p;
-				for (int i = 2; i < sentence.size(); i++) {
-					TaggedWord word = sentence.get(i);
-					p = new Token(word.word(), word.tag());
+				for (int i = 0; i < sentence.size()+1; i++) {
+					if (i < sentence.size()) {
+						TaggedWord word = sentence.get(i);
+						if (i % 5 == 0) {
+							p = new Token("potato", word.tag());
+						} else {
+							p = new Token(word.word(), word.tag());
+						}
+					} else {
+						p = new Token("<end>", "<end>");
+					}
 					Hashtable<Token, Hashtable<Token, Integer>> level2 = null;
 					if ((level2 = this.counts.get(p2)) != null) {
 						Hashtable<Token, Integer> level3 = null;
@@ -102,6 +120,7 @@ public class Model {
 					p2 = p1;
 					p1 = p;
 				}
+				
 			}
 		}
 	}
